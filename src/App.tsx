@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { Canvas } from "./components/Canvas";
 import { CodeEditor } from "./components/CodeEditor";
+import { GamePreview } from "./components/GamePreview";
 import { Modal } from "./components/Modal";
 import { RightPanel } from "./components/RightPanel";
 import { Sidebar } from "./components/Sidebar";
@@ -279,7 +280,9 @@ export default function App() {
             onAddObject={addObject}
           />
 
-          {viewMode === "canvas" && activeScene ? (
+          {viewMode === "preview" ? (
+            <GamePreview project={project} />
+          ) : viewMode === "canvas" && activeScene ? (
             <Canvas
               scene={activeScene}
               config={project.config}

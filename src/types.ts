@@ -89,7 +89,14 @@ export interface DragState {
 }
 
 // ── View mode ───────────────────────────────────────────────────────────
-export type ViewMode = "canvas" | "code";
+export type ViewMode = "canvas" | "code" | "preview";
+
+// ── Preview console ─────────────────────────────────────────────────
+export interface PreviewConsoleMessage {
+  level: "log" | "warn" | "error" | "info";
+  args: string[];
+  timestamp: number;
+}
 export type RightTab = "props" | "insights";
 
 // ── Persistence ─────────────────────────────────────────────────────────

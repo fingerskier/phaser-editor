@@ -31,6 +31,12 @@ export function ViewBar({
       >
         ⟨/⟩ Code
       </div>
+      <div
+        className={`view-tab ${viewMode === "preview" ? "act" : ""}`}
+        onClick={() => onSetViewMode("preview")}
+      >
+        ▶ Preview
+      </div>
       {activeScene && (
         <div className="view-scene-name">
           <span className="view-scene-dot" />

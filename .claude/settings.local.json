@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_reqall_reqall__upsert_project",
+      "mcp__plugin_reqall_reqall__list_records",
+      "mcp__plugin_reqall_reqall__get_record",
+      "mcp__plugin_reqall_reqall__upsert_record",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite:*)"
+    ]
+  }
+}
