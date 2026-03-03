@@ -91,3 +91,12 @@ export interface DragState {
 // ── View mode ───────────────────────────────────────────────────────────
 export type ViewMode = "canvas" | "code";
 export type RightTab = "props" | "insights";
+
+// ── Persistence ─────────────────────────────────────────────────────────
+export const SAVE_FORMAT_VERSION = 1;
+
+export interface SaveFile {
+  version: number;
+  savedAt: string;
+  project: Project;
+}

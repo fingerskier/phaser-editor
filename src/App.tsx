@@ -9,6 +9,7 @@ import { Toasts } from "./components/Toasts";
 import { Topbar } from "./components/Topbar";
 import { ViewBar } from "./components/ViewBar";
 import { OBJ_TYPES, INITIAL_PROJECT } from "./constants";
+import { useProjectPersistence } from "./hooks/useProjectPersistence";
 import { useToast } from "./hooks/useToast";
 import type {
   GameObject,
@@ -31,6 +32,14 @@ export default function App() {
   const [modalData, setModalData] = useState<ModalFormData>({});
 
   const { toasts, toast } = useToast();
+
+  const { save, exportProject, importProject, newProject } =
+    useProjectPersistence({
+      project,
+      setProject,
+      initialProject: INITIAL_PROJECT,
+      toast,
+    });
 
   const activeScene = project.scenes.find((s) => s.id === activeSceneId);
   const selectedObj = activeScene?.objects.find((o) => o.id === selectedObjId);
@@ -239,7 +248,14 @@ export default function App() {
 
   return (
     <div className="root">
-      <Topbar projectName={project.name} config={project.config} />
+      <Topbar
+        projectName={project.name}
+        config={project.config}
+        onSave={save}
+        onExport={exportProject}
+        onImport={importProject}
+        onNew={newProject}
+      />
 
       <div className="layout">
         <Sidebar
