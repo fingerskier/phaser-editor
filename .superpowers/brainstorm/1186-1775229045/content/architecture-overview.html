@@ -1,0 +1,65 @@
+<h2>Architecture Overview</h2>
+<p class="subtitle">SvelteKit Monolith — single process serving UI, API, and MCP</p>
+
+<div class="mockup">
+  <div class="mockup-header">System Architecture</div>
+  <div class="mockup-body" style="padding: 24px; font-family: monospace; font-size: 13px; line-height: 1.6;">
+    <div style="display: flex; gap: 32px; align-items: flex-start;">
+
+      <!-- Claude Code -->
+      <div style="border: 2px solid #7c3aed; border-radius: 8px; padding: 16px; min-width: 180px; text-align: center;">
+        <div style="color: #a78bfa; font-weight: bold; margin-bottom: 8px;">Claude Code</div>
+        <div style="font-size: 11px; color: #999;">(terminal)</div>
+        <div style="margin-top: 12px; font-size: 11px; color: #ccc;">User chats here</div>
+        <div style="margin-top: 4px; font-size: 11px; color: #ccc;">AI reads/writes via MCP</div>
+      </div>
+
+      <!-- Arrows -->
+      <div style="display: flex; flex-direction: column; justify-content: center; min-height: 200px; color: #666;">
+        <div>MCP (streamable HTTP)</div>
+        <div style="font-size: 20px;">◄─────────────────►</div>
+      </div>
+
+      <!-- SvelteKit App -->
+      <div style="border: 2px solid #059669; border-radius: 8px; padding: 16px; min-width: 340px;">
+        <div style="color: #34d399; font-weight: bold; margin-bottom: 12px; text-align: center;">SvelteKit App (single process)</div>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <div style="flex: 1; border: 1px solid #374151; border-radius: 6px; padding: 10px;">
+            <div style="color: #60a5fa; font-size: 11px; font-weight: bold;">Server Routes</div>
+            <div style="font-size: 10px; color: #999; margin-top: 4px;">/mcp — MCP endpoint</div>
+            <div style="font-size: 10px; color: #999;">/api/* — internal API</div>
+            <div style="font-size: 10px; color: #999;">File I/O (persistence)</div>
+          </div>
+          <div style="flex: 1; border: 1px solid #374151; border-radius: 6px; padding: 10px;">
+            <div style="color: #f59e0b; font-size: 11px; font-weight: bold;">Svelte UI</div>
+            <div style="font-size: 10px; color: #999; margin-top: 4px;">Editor chrome</div>
+            <div style="font-size: 10px; color: #999;">Embedded Phaser</div>
+            <div style="font-size: 10px; color: #999;">Properties panel</div>
+          </div>
+        </div>
+
+        <div style="border: 1px solid #374151; border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+          <div style="color: #f472b6; font-size: 11px; font-weight: bold;">Command System (shared)</div>
+          <div style="font-size: 10px; color: #999; margin-top: 4px;">All mutations → Command → Undo Stack → State Update → Persist to disk</div>
+          <div style="font-size: 10px; color: #999;">Both UI clicks and MCP tool calls go through this</div>
+        </div>
+
+        <div style="border: 1px solid #374151; border-radius: 6px; padding: 10px;">
+          <div style="color: #a78bfa; font-size: 11px; font-weight: bold;">Svelte Stores (reactive state)</div>
+          <div style="font-size: 10px; color: #999; margin-top: 4px;">project, scenes, selection, history — shared between UI and server</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Browser -->
+    <div style="margin-top: 20px; text-align: center; color: #666; font-size: 11px;">
+      ▲ User sees the Svelte UI + live Phaser game in browser
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px;">
+  <h3>Key Insight</h3>
+  <p>The <strong>Command System</strong> is the heart of the architecture. Every mutation — whether from a user clicking in the UI or Claude calling an MCP tool — flows through the same command pipeline: validate → execute → push to undo stack → update Svelte stores → persist to disk. This guarantees consistent undo/redo regardless of mutation source.</p>
+</div>

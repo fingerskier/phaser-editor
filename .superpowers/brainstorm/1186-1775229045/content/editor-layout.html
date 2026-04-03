@@ -1,0 +1,124 @@
+<h2>Editor UI Layout</h2>
+<p class="subtitle">Svelte editor chrome wrapping embedded Phaser</p>
+
+<div class="mockup">
+  <div class="mockup-header">Editor Layout — Edit Mode</div>
+  <div class="mockup-body" style="padding: 0; font-family: monospace; font-size: 11px;">
+
+    <!-- Toolbar -->
+    <div style="background: #1e1e2e; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <span style="color: #34d399; font-weight: bold;">⬡ Phaser Editor</span>
+        <span style="color: #888;">my-game</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <span style="background: #059669; color: white; padding: 2px 10px; border-radius: 4px; font-size: 10px;">EDIT</span>
+        <span style="background: #374151; color: #999; padding: 2px 10px; border-radius: 4px; font-size: 10px;">PLAY</span>
+        <span style="background: #374151; color: #999; padding: 2px 10px; border-radius: 4px; font-size: 10px;">CODE</span>
+      </div>
+      <div style="display: flex; gap: 12px; color: #666; font-size: 10px;">
+        <span>↩ Undo</span>
+        <span>↪ Redo</span>
+        <span style="color: #34d399;">● MCP Connected</span>
+      </div>
+    </div>
+
+    <!-- Main area -->
+    <div style="display: flex; height: 380px;">
+
+      <!-- Scene Tree -->
+      <div style="width: 200px; background: #16161e; border-right: 1px solid #333; padding: 8px; overflow-y: auto;">
+        <div style="color: #60a5fa; font-size: 10px; font-weight: bold; margin-bottom: 8px;">SCENES</div>
+        <div style="color: #ccc; padding: 4px 8px; background: #1e3a5f; border-radius: 3px; margin-bottom: 2px;">▾ MainScene</div>
+        <div style="color: #999; padding: 4px 16px; font-size: 10px;">● player</div>
+        <div style="color: #999; padding: 4px 16px; font-size: 10px; background: #2d2d3d; border-radius: 2px;">● platform</div>
+        <div style="color: #999; padding: 4px 16px; font-size: 10px;">● coin-group</div>
+        <div style="color: #999; padding: 4px 16px; font-size: 10px;">● score-text</div>
+        <div style="color: #666; padding: 4px 8px; margin-top: 4px;">▸ MenuScene</div>
+
+        <div style="color: #f59e0b; font-size: 10px; font-weight: bold; margin-top: 16px; margin-bottom: 8px;">MODULES</div>
+        <div style="color: #999; padding: 4px 8px;">Player.ts</div>
+        <div style="color: #999; padding: 4px 8px;">Physics.ts</div>
+      </div>
+
+      <!-- Phaser Canvas Area -->
+      <div style="flex: 1; background: #0a0a12; position: relative; display: flex; align-items: center; justify-content: center;">
+        <!-- Grid hint -->
+        <div style="width: 320px; height: 240px; border: 1px solid #333; position: relative; background: repeating-linear-gradient(0deg, transparent, transparent 19px, #1a1a2a 19px, #1a1a2a 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #1a1a2a 19px, #1a1a2a 20px);">
+          <!-- Game objects -->
+          <div style="position: absolute; left: 120px; top: 80px; width: 32px; height: 32px; background: #4ade80; border-radius: 4px; font-size: 8px; color: #000; display: flex; align-items: center; justify-content: center;">▶</div>
+          <div style="position: absolute; left: 40px; top: 180px; width: 240px; height: 16px; background: #78716c; border-radius: 2px;"></div>
+
+          <!-- Selection box on platform -->
+          <div style="position: absolute; left: 38px; top: 178px; width: 244px; height: 20px; border: 2px solid #60a5fa; border-radius: 2px; pointer-events: none;">
+            <div style="position: absolute; top: -2px; left: -2px; width: 6px; height: 6px; background: #60a5fa;"></div>
+            <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background: #60a5fa;"></div>
+            <div style="position: absolute; bottom: -2px; left: -2px; width: 6px; height: 6px; background: #60a5fa;"></div>
+            <div style="position: absolute; bottom: -2px; right: -2px; width: 6px; height: 6px; background: #60a5fa;"></div>
+          </div>
+
+          <div style="position: absolute; top: -16px; left: 40px; color: #60a5fa; font-size: 9px;">platform</div>
+        </div>
+        <!-- Zoom -->
+        <div style="position: absolute; bottom: 8px; right: 8px; color: #666; font-size: 10px;">100%</div>
+      </div>
+
+      <!-- Properties Panel -->
+      <div style="width: 240px; background: #16161e; border-left: 1px solid #333; padding: 8px; overflow-y: auto;">
+        <div style="color: #f472b6; font-size: 10px; font-weight: bold; margin-bottom: 8px;">PROPERTIES</div>
+        <div style="color: #60a5fa; font-size: 12px; margin-bottom: 12px;">platform <span style="color: #666; font-size: 10px;">rectangle</span></div>
+
+        <div style="margin-bottom: 12px;">
+          <div style="color: #666; font-size: 9px; margin-bottom: 4px;">TRANSFORM</div>
+          <div style="display: grid; grid-template-columns: 40px 1fr; gap: 4px; font-size: 10px;">
+            <span style="color: #888;">x</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">40</span>
+            <span style="color: #888;">y</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">180</span>
+            <span style="color: #888;">w</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">240</span>
+            <span style="color: #888;">h</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">16</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <div style="color: #666; font-size: 9px; margin-bottom: 4px;">APPEARANCE</div>
+          <div style="display: grid; grid-template-columns: 40px 1fr; gap: 4px; font-size: 10px;">
+            <span style="color: #888;">color</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">#78716c</span>
+            <span style="color: #888;">alpha</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">1.0</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="color: #666; font-size: 9px; margin-bottom: 4px;">PHYSICS</div>
+          <div style="display: grid; grid-template-columns: 40px 1fr; gap: 4px; font-size: 10px;">
+            <span style="color: #888;">body</span><span style="color: #34d399; font-size: 10px;">static</span>
+            <span style="color: #888;">bounce</span><span style="color: #ccc; background: #1e1e2e; padding: 2px 6px; border-radius: 2px;">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div style="background: #1e1e2e; padding: 4px 16px; border-top: 1px solid #333; display: flex; justify-content: space-between; font-size: 10px;">
+      <span style="color: #888;">MainScene — 4 objects</span>
+      <span style="color: #888;">800×600 | arcade physics</span>
+      <span style="color: #666;">History: 12 commands | Saved ✓</span>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px;">
+  <h3>Three View Modes</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 12px;">
+    <div style="border: 1px solid #374151; border-radius: 8px; padding: 16px;">
+      <div style="color: #34d399; font-weight: bold; margin-bottom: 4px;">EDIT</div>
+      <p style="font-size: 13px; color: #999;">Visual scene editor. Select, move, resize objects. Phaser renders live. Selection overlay on top.</p>
+    </div>
+    <div style="border: 1px solid #374151; border-radius: 8px; padding: 16px;">
+      <div style="color: #f59e0b; font-weight: bold; margin-bottom: 4px;">PLAY</div>
+      <p style="font-size: 13px; color: #999;">Full game preview. All input passes through to Phaser. Test the game live. AI can still observe.</p>
+    </div>
+    <div style="border: 1px solid #374151; border-radius: 8px; padding: 16px;">
+      <div style="color: #60a5fa; font-weight: bold; margin-bottom: 4px;">CODE</div>
+      <p style="font-size: 13px; color: #999;">CodeMirror editor for scene/module source. Syntax highlighting, TS support. Edits flow through command system.</p>
+    </div>
+  </div>
+</div>

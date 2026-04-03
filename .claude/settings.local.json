@@ -6,7 +6,9 @@
       "mcp__plugin_reqall_reqall__get_record",
       "mcp__plugin_reqall_reqall__upsert_record",
       "Bash(npx tsc:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(find /c/dev/fingerskier/game/phaser-editor/src/components -type f -name \"*.tsx\" -exec wc -l {} +)",
+      "Bash(bash:*)"
     ]
   }
 }
