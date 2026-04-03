@@ -1,6 +1,10 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [sveltekit()],
+  test: {
+    include: ['tests/**/*.test.ts'],
+    environment: 'jsdom'
+  }
 });
