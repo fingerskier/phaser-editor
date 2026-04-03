@@ -1,0 +1,9 @@
+{
+  "id": "s1",
+  "name": "MainScene",
+  "description": "Main game scene",
+  "objects": [
+    { "id": "o1", "name": "platform", "objType": "rectangle", "x": 400, "y": 500, "w": 600, "h": 32, "color": "#78716c", "visible": true, "locked": false, "props": {} },
+    { "id": "o2", "name": "player", "objType": "rectangle", "x": 100, "y": 400, "w": 32, "h": 48, "color": "#4ade80", "visible": true, "locked": false, "props": {} }
+  ]
+}
