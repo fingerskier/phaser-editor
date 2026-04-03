@@ -6,6 +6,8 @@
 	import { historyStore } from '$lib/stores/history.svelte.js';
 	import { createCommandBus } from '$lib/commands/command-bus.js';
 	import { createUpdateObjectCommand } from '$lib/commands/update-object.js';
+	import CodeEditor from '../components/CodeEditor.svelte';
+	import { createUpdateCodeCommand } from '$lib/commands/update-code.js';
 	import Toolbar from '../components/Toolbar.svelte';
 	import SceneTree from '../components/SceneTree.svelte';
 	import PhaserCanvas from '../components/PhaserCanvas.svelte';
@@ -87,7 +89,20 @@
 				onMove={handleMoveObject}
 			/>
 		{:else if viewMode === 'code' && activeScene}
-			<div style="padding:16px;color:var(--text-secondary);">Code editor — Task 10</div>
+			<CodeEditor
+				code={activeScene.code}
+				onCodeChange={(newCode) => {
+					if (activeScene) {
+						const cmd = createUpdateCodeCommand(
+							(id) => store.getScene(id) ?? store.getModule(id),
+							activeScene.id,
+							newCode,
+							'user'
+						);
+						bus.execute(cmd);
+					}
+				}}
+			/>
 		{:else if viewMode === 'play'}
 			<div style="padding:16px;color:var(--text-secondary);">Play mode — full Phaser game</div>
 		{:else}
