@@ -4,4 +4,4 @@ tsconfig.tsbuildinfo
 .worktrees
 .superpowers
 .svelte-kit
-build
+build/

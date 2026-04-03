@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "phaser-editor": {
+      "url": "http://localhost:7433/mcp"
+    }
+  }
+}
