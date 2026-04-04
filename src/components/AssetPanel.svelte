@@ -15,6 +15,12 @@
 
 	let uploading = $state(false);
 	let dragOver = $state(false);
+	let editingAssetId = $state<string | null>(null);
+	let editType = $state<'image' | 'spritesheet' | 'audio'>('image');
+	let editFrameW = $state(32);
+	let editFrameH = $state(32);
+
+	let editingAsset = $derived(editingAssetId ? assets.find(a => a.id === editingAssetId) ?? null : null);
 
 	async function uploadFile(file: File) {
 		uploading = true;
@@ -34,6 +40,31 @@
 		} finally {
 			uploading = false;
 		}
+	}
+
+	function startEditing(asset: Asset) {
+		editingAssetId = asset.id;
+		editType = asset.type;
+		editFrameW = asset.frameWidth ?? 32;
+		editFrameH = asset.frameHeight ?? 32;
+	}
+
+	function saveAssetConfig() {
+		if (!editingAsset) return;
+		// Update the asset in place — remove old, add updated
+		const updated: Asset = {
+			...editingAsset,
+			type: editType,
+			frameWidth: editType === 'spritesheet' ? editFrameW : undefined,
+			frameHeight: editType === 'spritesheet' ? editFrameH : undefined,
+		};
+		onAssetRemoved(editingAsset.id);
+		onAssetAdded(updated);
+		editingAssetId = null;
+	}
+
+	function cancelEditing() {
+		editingAssetId = null;
 	}
 
 	function handleFileInput(e: Event) {
@@ -96,13 +127,21 @@
 
 		<div class="asset-grid">
 			{#each assets as asset (asset.id)}
-				<div class="asset-item" title={`${asset.key} (${asset.type})`}>
+				<div
+					class="asset-item"
+					class:editing={editingAssetId === asset.id}
+					title={`${asset.key} (${asset.type})${asset.type === 'spritesheet' ? ` ${asset.frameWidth}x${asset.frameHeight}` : ''}`}
+					ondblclick={() => startEditing(asset)}
+				>
 					{#if asset.type === 'audio'}
 						<div class="asset-thumb audio-icon">&#x266B;</div>
 					{:else}
 						<img class="asset-thumb" src={getThumbUrl(asset)} alt={asset.key} />
 					{/if}
 					<div class="asset-key">{asset.key}</div>
+					{#if asset.type === 'spritesheet'}
+						<div class="asset-badge">SS</div>
+					{/if}
 					<button
 						class="remove-btn"
 						title="Remove asset"
@@ -111,6 +150,34 @@
 				</div>
 			{/each}
 		</div>
+
+		{#if editingAsset}
+			<div class="asset-config">
+				<div class="config-header">{editingAsset.key}</div>
+				<div class="config-row">
+					<label>Type</label>
+					<select bind:value={editType}>
+						<option value="image">Image</option>
+						<option value="spritesheet">Spritesheet</option>
+						{#if editingAsset.type === 'audio'}<option value="audio">Audio</option>{/if}
+					</select>
+				</div>
+				{#if editType === 'spritesheet'}
+					<div class="config-row">
+						<label>Frame W</label>
+						<input type="number" bind:value={editFrameW} min="1" />
+					</div>
+					<div class="config-row">
+						<label>Frame H</label>
+						<input type="number" bind:value={editFrameH} min="1" />
+					</div>
+				{/if}
+				<div class="config-actions">
+					<button onclick={saveAssetConfig}>Save</button>
+					<button onclick={cancelEditing}>Cancel</button>
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>
 
@@ -233,5 +300,67 @@
 
 	.asset-item:hover .remove-btn {
 		opacity: 1;
+	}
+
+	.asset-item.editing {
+		outline: 1px solid var(--accent-blue);
+	}
+
+	.asset-badge {
+		position: absolute;
+		bottom: 18px;
+		left: 2px;
+		font-size: 7px;
+		background: var(--accent-purple);
+		color: white;
+		padding: 0 3px;
+		border-radius: 2px;
+		font-weight: bold;
+	}
+
+	.asset-config {
+		padding: 6px 8px;
+		border-top: 1px solid var(--border);
+		background: var(--bg-tertiary);
+	}
+
+	.config-header {
+		font-size: 10px;
+		font-weight: bold;
+		color: var(--text-primary);
+		margin-bottom: 4px;
+	}
+
+	.config-row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		margin-bottom: 3px;
+	}
+
+	.config-row label {
+		font-size: 9px;
+		color: var(--text-secondary);
+		width: 48px;
+		flex-shrink: 0;
+	}
+
+	.config-row select,
+	.config-row input {
+		flex: 1;
+		width: 0;
+		font-size: 10px;
+	}
+
+	.config-actions {
+		display: flex;
+		gap: 4px;
+		margin-top: 4px;
+	}
+
+	.config-actions button {
+		flex: 1;
+		font-size: 9px;
+		padding: 2px 6px;
 	}
 </style>
