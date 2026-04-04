@@ -14,6 +14,7 @@
 	import SelectionOverlay from '../components/SelectionOverlay.svelte';
 	import PropertiesPanel from '../components/PropertiesPanel.svelte';
 	import StatusBar from '../components/StatusBar.svelte';
+	import PlayCanvas from '../components/PlayCanvas.svelte';
 	import AssetPanel from '../components/AssetPanel.svelte';
 	import { createAddAssetCommand } from '$lib/commands/add-asset.js';
 	import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
@@ -138,7 +139,7 @@
 				}}
 			/>
 		{:else if viewMode === 'play'}
-			<div style="padding:16px;color:var(--text-secondary);">Play mode — full Phaser game</div>
+			<PlayCanvas project={store.project} />
 		{:else}
 			<div style="padding:16px;color:var(--text-muted);">No scene selected</div>
 		{/if}
