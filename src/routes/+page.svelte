@@ -71,6 +71,18 @@
 		const cmd = createRemoveAssetCommand(() => store.project, assetId, 'user');
 		bus.execute(cmd);
 	}
+
+	async function handleExport() {
+		const res = await fetch('/api/export', { method: 'POST' });
+		if (!res.ok) return;
+		const blob = await res.blob();
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `${store.project.name || 'game'}.zip`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
 </script>
 
 <div class="editor-layout">
@@ -82,6 +94,7 @@
 		{mcpConnected}
 		onUndo={() => bus.undo()}
 		onRedo={() => bus.redo()}
+		onExport={handleExport}
 	/>
 
 	<div class="left-panel">

@@ -4,6 +4,7 @@ import type { CommandBus } from '$lib/commands/command-bus.js';
 import type { Project, GameObject, Scene, Module } from '$lib/types.js';
 import { createReadToolHandlers } from './tools/read-tools.js';
 import { createWriteToolHandlers, type StoreAccessors } from './tools/write-tools.js';
+import { generateExportFiles } from '$lib/export/generate-project.js';
 
 export interface ServerDeps {
 	bus: CommandBus;
@@ -236,6 +237,16 @@ export function initEditorMcpServer(deps: ServerDeps): McpServer {
 		description: 'Capture a screenshot of the current game preview',
 	}, async () => {
 		return { content: [{ type: 'text', text: 'Not implemented yet' }], isError: true };
+	});
+
+	server.registerTool('export_project', {
+		title: 'Export Project',
+		description: 'Generate a standalone Phaser project. Returns the list of generated files and their contents.',
+	}, async () => {
+		const project = deps.getProject();
+		const files = generateExportFiles(project);
+		const summary = files.map(f => `--- ${f.path} ---\n${f.content}`).join('\n\n');
+		return { content: [{ type: 'text', text: summary }] };
 	});
 
 	singleton = server;

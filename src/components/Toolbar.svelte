@@ -9,6 +9,7 @@
 		mcpConnected = false,
 		onUndo,
 		onRedo,
+		onExport,
 	}: {
 		projectName: string;
 		viewMode: ViewMode;
@@ -17,6 +18,7 @@
 		mcpConnected: boolean;
 		onUndo: () => void;
 		onRedo: () => void;
+		onExport: () => void;
 	} = $props();
 </script>
 
@@ -31,6 +33,7 @@
 		<button class:active={viewMode === 'code'} onclick={() => viewMode = 'code'}>CODE</button>
 	</div>
 	<div style="display:flex;gap:12px;align-items:center;">
+		<button onclick={onExport} title="Export as standalone Phaser project">&#x1F4E6; Export</button>
 		<button disabled={!canUndo} onclick={onUndo}>&#x21A9; Undo</button>
 		<button disabled={!canRedo} onclick={onRedo}>&#x21AA; Redo</button>
 		<span style="font-size:10px;color:{mcpConnected ? 'var(--accent-green)' : 'var(--text-muted)'};">&#x25CF; {mcpConnected ? 'MCP Connected' : 'MCP Disconnected'}</span>
