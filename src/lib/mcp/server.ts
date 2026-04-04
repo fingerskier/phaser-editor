@@ -184,6 +184,46 @@ export function initEditorMcpServer(deps: ServerDeps): McpServer {
 		return { content: [{ type: 'text', text: cmd ? `Redid: ${cmd.description}` : 'Nothing to redo' }] };
 	});
 
+	server.registerTool('list_assets', {
+		title: 'List Assets',
+		description: 'List all assets in the project',
+	}, async () => {
+		const assets = writeTools.list_assets();
+		return { content: [{ type: 'text', text: JSON.stringify(assets, null, 2) }] };
+	});
+
+	server.registerTool('add_asset', {
+		title: 'Add Asset',
+		description: 'Register an asset in the project (file must already exist in assets/ dir)',
+		inputSchema: {
+			key: z.string().describe('Unique key to reference this asset in game objects'),
+			filename: z.string().describe('Filename in assets/ directory'),
+			type: z.enum(['image', 'spritesheet', 'audio']),
+			frameWidth: z.number().optional().describe('Spritesheet frame width'),
+			frameHeight: z.number().optional().describe('Spritesheet frame height'),
+		},
+	}, async ({ key, filename, type, frameWidth, frameHeight }) => {
+		const asset = {
+			id: crypto.randomUUID(),
+			key,
+			filename,
+			type,
+			frameWidth,
+			frameHeight,
+		};
+		writeTools.add_asset(asset);
+		return { content: [{ type: 'text', text: JSON.stringify({ id: asset.id, key: asset.key }) }] };
+	});
+
+	server.registerTool('remove_asset', {
+		title: 'Remove Asset',
+		description: 'Remove an asset from the project registry',
+		inputSchema: { assetId: z.string() },
+	}, async ({ assetId }) => {
+		writeTools.remove_asset(assetId);
+		return { content: [{ type: 'text', text: `Removed asset ${assetId}` }] };
+	});
+
 	server.registerTool('restart_preview', {
 		title: 'Restart Preview',
 		description: 'Restart the game preview',

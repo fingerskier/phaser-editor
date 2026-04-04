@@ -1,4 +1,4 @@
-import type { Project, Scene, Module, GameObject } from '$lib/types.js';
+import type { Project, Scene, Module, GameObject, Asset } from '$lib/types.js';
 import { DEFAULT_CONFIG } from '$lib/constants.js';
 
 export function projectStore() {
@@ -7,6 +7,7 @@ export function projectStore() {
 		config: { ...DEFAULT_CONFIG },
 		scenes: [],
 		modules: [],
+		assets: [],
 	});
 
 	function load(p: Project) {
@@ -14,6 +15,7 @@ export function projectStore() {
 		project.config = { ...p.config };
 		project.scenes = p.scenes.map((s) => ({ ...s, objects: [...s.objects] }));
 		project.modules = p.modules.map((m) => ({ ...m }));
+		project.assets = (p.assets ?? []).map((a) => ({ ...a }));
 	}
 
 	function getScene(id: string): Scene | undefined {
@@ -36,6 +38,14 @@ export function projectStore() {
 		return project.scenes.find((s) => s.objects.some((o) => o.id === objectId));
 	}
 
+	function getAsset(id: string): Asset | undefined {
+		return project.assets.find((a) => a.id === id);
+	}
+
+	function getAssetByKey(key: string): Asset | undefined {
+		return project.assets.find((a) => a.key === key);
+	}
+
 	return {
 		get project() {
 			return project;
@@ -45,5 +55,7 @@ export function projectStore() {
 		getModule,
 		getObject,
 		getObjectScene,
+		getAsset,
+		getAssetByKey,
 	};
 }

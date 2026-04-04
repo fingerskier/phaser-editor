@@ -10,6 +10,7 @@ function projectStore() {
 		config: { ...DEFAULT_CONFIG },
 		scenes: [],
 		modules: [],
+		assets: [],
 	};
 
 	function load(p: Project) {
@@ -17,6 +18,7 @@ function projectStore() {
 		project.config = { ...p.config };
 		project.scenes = p.scenes.map((s) => ({ ...s, objects: [...s.objects] }));
 		project.modules = p.modules.map((m) => ({ ...m }));
+		project.assets = (p.assets ?? []).map((a) => ({ ...a }));
 	}
 
 	function getScene(id: string): Scene | undefined {
@@ -89,6 +91,7 @@ describe('projectStore', () => {
 			config: { width: 1024, height: 768, physics: 'matter', pixelArt: true, backgroundColor: '#000' },
 			scenes: [makeScene('s1', 'Scene 1')],
 			modules: [{ id: 'm1', name: 'Utils', description: '', code: '' }],
+			assets: [],
 		};
 		store.load(proj);
 		expect(store.project.name).toBe('My Game');
@@ -104,6 +107,7 @@ describe('projectStore', () => {
 			config: { ...DEFAULT_CONFIG },
 			scenes: [makeScene('s1', 'First'), makeScene('s2', 'Second')],
 			modules: [],
+			assets: [],
 		});
 		expect(store.getScene('s1')?.name).toBe('First');
 		expect(store.getScene('s2')?.name).toBe('Second');
@@ -119,6 +123,7 @@ describe('projectStore', () => {
 			config: { ...DEFAULT_CONFIG },
 			scenes: [makeScene('s1', 'Scene1', [obj1]), makeScene('s2', 'Scene2', [obj2])],
 			modules: [],
+			assets: [],
 		});
 		expect(store.getObject('o1')?.name).toBe('Player');
 		expect(store.getObject('o2')?.name).toBe('Enemy');
@@ -133,6 +138,7 @@ describe('projectStore', () => {
 			config: { ...DEFAULT_CONFIG },
 			scenes: [makeScene('s1', 'Scene1', [obj1]), makeScene('s2', 'Scene2')],
 			modules: [],
+			assets: [],
 		});
 		expect(store.getObjectScene('o1')?.id).toBe('s1');
 		expect(store.getObjectScene('nope')).toBeUndefined();

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { createPhaserBridge, type PhaserBridge } from '$lib/phaser/bridge.js';
-	import type { ProjectConfig, GameObject } from '$lib/types.js';
+	import type { ProjectConfig, GameObject, Asset } from '$lib/types.js';
 
-	let { config, objects = [] as GameObject[], viewMode = 'edit' }: {
-		config: ProjectConfig; objects: GameObject[]; viewMode: string;
+	let { config, objects = [] as GameObject[], assets = [] as Asset[], viewMode = 'edit' }: {
+		config: ProjectConfig; objects: GameObject[]; assets: Asset[]; viewMode: string;
 	} = $props();
 
 	let container: HTMLDivElement;
@@ -13,6 +13,7 @@
 	onMount(() => { bridge = createPhaserBridge(container, config); bridge.start(); });
 	onDestroy(() => { bridge?.destroy(); });
 
+	$effect(() => { bridge?.loadAssets(assets); });
 	$effect(() => { bridge?.syncObjects(objects); });
 </script>
 

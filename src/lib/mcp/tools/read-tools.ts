@@ -22,6 +22,12 @@ export function createReadToolHandlers(
 					name: m.name,
 					description: m.description,
 				})),
+				assets: (p.assets ?? []).map(a => ({
+					id: a.id,
+					key: a.key,
+					type: a.type,
+					filename: a.filename,
+				})),
 			};
 		},
 

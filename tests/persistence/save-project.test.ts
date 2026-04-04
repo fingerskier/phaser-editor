@@ -48,6 +48,7 @@ function makeTestProject(): Project {
 				code: 'export function clamp(v: number) { return v; }',
 			},
 		],
+		assets: [],
 	};
 }
 

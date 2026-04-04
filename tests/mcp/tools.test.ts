@@ -35,6 +35,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
 		config: { width: 800, height: 600, physics: 'arcade', pixelArt: false, backgroundColor: '#1a1a2e' },
 		scenes: [makeScene()],
 		modules: [{ id: 'mod-1', name: 'Utils', description: 'Utility module', code: '// utils' }],
+		assets: [],
 		...overrides,
 	};
 }

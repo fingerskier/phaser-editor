@@ -1,12 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { Project, Scene, Module } from '$lib/types.js';
+import type { Project, Scene, Module, Asset } from '$lib/types.js';
 
 interface ProjectManifest {
 	name: string;
 	config: Project['config'];
 	scenes: string[];
 	modules: string[];
+	assets?: Asset[];
 }
 
 export async function loadProject(dir: string): Promise<Project> {
@@ -54,5 +55,5 @@ export async function loadProject(dir: string): Promise<Project> {
 		});
 	}
 
-	return { name: manifest.name, config: manifest.config, scenes, modules };
+	return { name: manifest.name, config: manifest.config, scenes, modules, assets: manifest.assets ?? [] };
 }

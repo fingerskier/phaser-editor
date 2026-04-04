@@ -14,6 +14,10 @@
 	import SelectionOverlay from '../components/SelectionOverlay.svelte';
 	import PropertiesPanel from '../components/PropertiesPanel.svelte';
 	import StatusBar from '../components/StatusBar.svelte';
+	import AssetPanel from '../components/AssetPanel.svelte';
+	import { createAddAssetCommand } from '$lib/commands/add-asset.js';
+	import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
+	import type { Asset } from '$lib/types.js';
 
 	const store = projectStore();
 	const selection = selectionStore();
@@ -57,6 +61,16 @@
 		const cmd = createUpdateObjectCommand(store.getObject.bind(store), objectId, prop, value, 'user');
 		bus.execute(cmd);
 	}
+
+	function handleAssetAdded(asset: Asset) {
+		const cmd = createAddAssetCommand(() => store.project, asset, 'user');
+		bus.execute(cmd);
+	}
+
+	function handleAssetRemoved(assetId: string) {
+		const cmd = createRemoveAssetCommand(() => store.project, assetId, 'user');
+		bus.execute(cmd);
+	}
 </script>
 
 <div class="editor-layout">
@@ -70,17 +84,24 @@
 		onRedo={() => bus.redo()}
 	/>
 
-	<SceneTree
-		project={store.project}
-		{activeSceneId}
-		selectedObjectIds={selection.selectedIds}
-		onSelectScene={handleSelectScene}
-		onSelectObject={(id) => handleSelectObject(id)}
-	/>
+	<div class="left-panel">
+		<SceneTree
+			project={store.project}
+			{activeSceneId}
+			selectedObjectIds={selection.selectedIds}
+			onSelectScene={handleSelectScene}
+			onSelectObject={(id) => handleSelectObject(id)}
+		/>
+		<AssetPanel
+			assets={store.project.assets}
+			onAssetAdded={handleAssetAdded}
+			onAssetRemoved={handleAssetRemoved}
+		/>
+	</div>
 
 	<div class="center-panel" style="position:relative;overflow:hidden;">
 		{#if viewMode === 'edit' && activeScene}
-			<PhaserCanvas config={store.project.config} objects={activeScene.objects} {viewMode} />
+			<PhaserCanvas config={store.project.config} objects={activeScene.objects} assets={store.project.assets} {viewMode} />
 			<SelectionOverlay
 				objects={activeScene.objects}
 				selectedIds={selection.selectedIds}
@@ -137,11 +158,25 @@
 		grid-column: 1 / -1;
 	}
 
-	.editor-layout > :global(.scene-tree) {
+	.left-panel {
 		grid-row: 2;
 		grid-column: 1;
+		display: flex;
+		flex-direction: column;
 		overflow-y: auto;
 		border-right: 1px solid var(--border);
+		background: var(--bg-secondary);
+	}
+
+	.left-panel > :global(.scene-tree) {
+		flex: 1;
+		overflow-y: auto;
+	}
+
+	.left-panel > :global(.asset-panel) {
+		flex-shrink: 0;
+		max-height: 40%;
+		overflow-y: auto;
 	}
 
 	.center-panel {

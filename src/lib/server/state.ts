@@ -5,7 +5,7 @@
  * so it can run in hooks.server.ts (which is not processed by the
  * Svelte compiler).
  */
-import type { Project, Scene, Module, GameObject, Command } from '$lib/types.js';
+import type { Project, Scene, Module, GameObject, Asset, Command } from '$lib/types.js';
 import { DEFAULT_CONFIG } from '$lib/constants.js';
 
 // ---------------------------------------------------------------------------
@@ -16,6 +16,7 @@ let project: Project = {
 	config: { ...DEFAULT_CONFIG },
 	scenes: [],
 	modules: [],
+	assets: [],
 };
 
 function loadProject(p: Project) {
@@ -24,6 +25,7 @@ function loadProject(p: Project) {
 		config: { ...p.config },
 		scenes: p.scenes.map((s) => ({ ...s, objects: [...s.objects] })),
 		modules: p.modules.map((m) => ({ ...m })),
+		assets: (p.assets ?? []).map((a) => ({ ...a })),
 	};
 }
 

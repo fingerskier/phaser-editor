@@ -6,11 +6,14 @@ export async function saveProject(dir: string, project: Project): Promise<void> 
 	await mkdir(join(dir, 'scenes'), { recursive: true });
 	await mkdir(join(dir, 'modules'), { recursive: true });
 
+	await mkdir(join(dir, 'assets'), { recursive: true });
+
 	const manifest = {
 		name: project.name,
 		config: project.config,
 		scenes: project.scenes.map((s) => s.name),
 		modules: project.modules.map((m) => m.name),
+		assets: project.assets ?? [],
 	};
 	await writeFile(join(dir, 'project.json'), JSON.stringify(manifest, null, 2));
 

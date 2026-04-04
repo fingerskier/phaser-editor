@@ -1,5 +1,5 @@
 import type { CommandBus } from '$lib/commands/command-bus.js';
-import type { Project, Scene, Module, GameObject, ProjectConfig } from '$lib/types.js';
+import type { Project, Scene, Module, GameObject, ProjectConfig, Asset } from '$lib/types.js';
 import { createUpdateObjectCommand } from '$lib/commands/update-object.js';
 import { createAddObjectCommand } from '$lib/commands/add-object.js';
 import { createRemoveObjectCommand } from '$lib/commands/remove-object.js';
@@ -7,6 +7,8 @@ import { createUpdateCodeCommand } from '$lib/commands/update-code.js';
 import { createAddSceneCommand } from '$lib/commands/add-scene.js';
 import { createRemoveSceneCommand } from '$lib/commands/remove-scene.js';
 import { createUpdateConfigCommand } from '$lib/commands/update-config.js';
+import { createAddAssetCommand } from '$lib/commands/add-asset.js';
+import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
 
 export interface StoreAccessors {
 	getProject: () => Project;
@@ -70,6 +72,20 @@ export function createWriteToolHandlers(bus: CommandBus, accessors: StoreAccesso
 				);
 				bus.execute(cmd);
 			}
+		},
+
+		add_asset(asset: Asset) {
+			const cmd = createAddAssetCommand(() => accessors.getProject(), asset, 'mcp');
+			bus.execute(cmd);
+		},
+
+		remove_asset(assetId: string) {
+			const cmd = createRemoveAssetCommand(() => accessors.getProject(), assetId, 'mcp');
+			bus.execute(cmd);
+		},
+
+		list_assets() {
+			return accessors.getProject().assets ?? [];
 		},
 
 		undo() {

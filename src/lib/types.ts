@@ -40,6 +40,18 @@ export interface Project {
 	config: ProjectConfig;
 	scenes: Scene[];
 	modules: Module[];
+	assets: Asset[];
+}
+
+export interface Asset {
+	id: string;
+	key: string;
+	filename: string;
+	type: 'image' | 'spritesheet' | 'audio';
+	width?: number;
+	height?: number;
+	frameWidth?: number;
+	frameHeight?: number;
 }
 
 export type CommandSource = 'user' | 'mcp';
