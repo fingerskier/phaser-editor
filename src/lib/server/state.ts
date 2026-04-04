@@ -112,6 +112,48 @@ export const serverProject = {
 	getObjectScene,
 };
 
+// ---------------------------------------------------------------------------
+// Screenshot request/response
+// ---------------------------------------------------------------------------
+let screenshotRequest = false;
+let screenshotData: string | null = null;
+let screenshotResolve: ((data: string | null) => void) | null = null;
+
+function requestScreenshot(): Promise<string | null> {
+	screenshotRequest = true;
+	screenshotData = null;
+	return new Promise((resolve) => {
+		screenshotResolve = resolve;
+		// Timeout after 5 seconds
+		setTimeout(() => {
+			if (screenshotResolve === resolve) {
+				screenshotResolve = null;
+				screenshotRequest = false;
+				resolve(null);
+			}
+		}, 5000);
+	});
+}
+
+function isScreenshotRequested(): boolean {
+	return screenshotRequest;
+}
+
+function fulfillScreenshot(data: string) {
+	screenshotData = data;
+	screenshotRequest = false;
+	if (screenshotResolve) {
+		screenshotResolve(data);
+		screenshotResolve = null;
+	}
+}
+
+export const serverScreenshot = {
+	request: requestScreenshot,
+	isRequested: isScreenshotRequested,
+	fulfill: fulfillScreenshot,
+};
+
 export const serverSelection = {
 	get selectedIds() {
 		return getSelectedIds();

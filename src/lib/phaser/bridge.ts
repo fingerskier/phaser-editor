@@ -83,10 +83,17 @@ export function createPhaserBridge(container: HTMLElement, config: {
 	}
 
 	function getCanvas(): HTMLCanvasElement | null { return container.querySelector('canvas'); }
+
+	function screenshot(): string | null {
+		const canvas = getCanvas();
+		if (!canvas) return null;
+		return canvas.toDataURL('image/png');
+	}
+
 	function destroy() { if (game) { game.destroy(true); game = null; } loadedTextures.clear(); }
 	function restart() { destroy(); start(); }
 
-	return { start, syncObjects, loadAssets, getCanvas, destroy, restart };
+	return { start, syncObjects, loadAssets, getCanvas, screenshot, destroy, restart };
 }
 
 export type PhaserBridge = ReturnType<typeof createPhaserBridge>;

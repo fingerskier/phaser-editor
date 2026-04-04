@@ -9,9 +9,34 @@
 
 	let container: HTMLDivElement;
 	let bridge: PhaserBridge | null = null;
+	let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-	onMount(() => { bridge = createPhaserBridge(container, config); bridge.start(); });
-	onDestroy(() => { bridge?.destroy(); });
+	async function checkScreenshotRequest() {
+		try {
+			const res = await fetch('/api/screenshot');
+			const { requested } = await res.json();
+			if (requested && bridge) {
+				const data = bridge.screenshot();
+				if (data) {
+					await fetch('/api/screenshot', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ data }),
+					});
+				}
+			}
+		} catch { /* ignore polling errors */ }
+	}
+
+	onMount(() => {
+		bridge = createPhaserBridge(container, config);
+		bridge.start();
+		pollInterval = setInterval(checkScreenshotRequest, 500);
+	});
+	onDestroy(() => {
+		bridge?.destroy();
+		if (pollInterval) clearInterval(pollInterval);
+	});
 
 	$effect(() => { bridge?.loadAssets(assets); });
 	$effect(() => { bridge?.syncObjects(objects); });

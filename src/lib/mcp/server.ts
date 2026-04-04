@@ -5,6 +5,7 @@ import type { Project, GameObject, Scene, Module } from '$lib/types.js';
 import { createReadToolHandlers } from './tools/read-tools.js';
 import { createWriteToolHandlers, type StoreAccessors } from './tools/write-tools.js';
 import { generateExportFiles } from '$lib/export/generate-project.js';
+import { serverScreenshot } from '$lib/server/state.js';
 
 export interface ServerDeps {
 	bus: CommandBus;
@@ -234,9 +235,15 @@ export function initEditorMcpServer(deps: ServerDeps): McpServer {
 
 	server.registerTool('get_screenshot', {
 		title: 'Get Screenshot',
-		description: 'Capture a screenshot of the current game preview',
+		description: 'Capture a screenshot of the current game preview (requires editor open in browser)',
 	}, async () => {
-		return { content: [{ type: 'text', text: 'Not implemented yet' }], isError: true };
+		const data = await serverScreenshot.request();
+		if (!data) {
+			return { content: [{ type: 'text', text: 'Screenshot capture timed out. Is the editor open in a browser?' }], isError: true };
+		}
+		// Return as base64 image
+		const base64 = data.replace(/^data:image\/png;base64,/, '');
+		return { content: [{ type: 'image', data: base64, mimeType: 'image/png' }] };
 	});
 
 	server.registerTool('export_project', {
