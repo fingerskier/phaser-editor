@@ -35,7 +35,10 @@ export async function saveProject(dir: string, project: Project): Promise<void> 
 
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function debouncedSave(dir: string, project: Project, delay = 500): void {
+export function debouncedSave(dir: string, project: Project, delay = 500, onSaved?: () => void): void {
 	if (saveTimer) clearTimeout(saveTimer);
-	saveTimer = setTimeout(() => saveProject(dir, project), delay);
+	saveTimer = setTimeout(async () => {
+		await saveProject(dir, project);
+		onSaved?.();
+	}, delay);
 }

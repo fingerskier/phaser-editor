@@ -113,6 +113,49 @@ export const serverProject = {
 };
 
 // ---------------------------------------------------------------------------
+// Save status tracking
+// ---------------------------------------------------------------------------
+let dirty = false;
+let saveVersion = 0;
+
+function markDirty() {
+	dirty = true;
+	saveVersion++;
+}
+
+function markSaved() {
+	dirty = false;
+}
+
+function isSaved(): boolean {
+	return !dirty;
+}
+
+function getSaveVersion(): number {
+	return saveVersion;
+}
+
+// Track external file changes — incremented when watcher detects edits
+let externalChangeVersion = 0;
+
+function bumpExternalChange() {
+	externalChangeVersion++;
+}
+
+function getExternalChangeVersion(): number {
+	return externalChangeVersion;
+}
+
+export const serverSaveStatus = {
+	markDirty,
+	markSaved,
+	isSaved,
+	getVersion: getSaveVersion,
+	bumpExternalChange,
+	getExternalChangeVersion,
+};
+
+// ---------------------------------------------------------------------------
 // Screenshot request/response
 // ---------------------------------------------------------------------------
 let screenshotRequest = false;

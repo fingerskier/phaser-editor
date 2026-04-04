@@ -29,6 +29,9 @@
 	let viewMode = $state<ViewMode>('edit');
 	let activeSceneId = $state('');
 	let mcpConnected = $state(false);
+	let saved = $state(true);
+	let lastExternalVersion = 0;
+	let statusPollInterval: ReturnType<typeof setInterval> | null = null;
 
 	let activeScene = $derived(store.getScene(activeSceneId));
 	let selectedObject = $derived(
@@ -92,12 +95,27 @@
 		const project = await res.json();
 		store.load(project);
 		if (project.scenes.length > 0) activeSceneId = project.scenes[0].id;
+		statusPollInterval = setInterval(async () => {
+			try {
+				const r = await fetch('/api/status');
+				const s = await r.json();
+				saved = s.saved;
+				// Reload project if external changes detected
+				if (s.externalVersion > lastExternalVersion) {
+					lastExternalVersion = s.externalVersion;
+					const projRes = await fetch('/api/project');
+					const project = await projRes.json();
+					store.load(project);
+				}
+			} catch { /* ignore */ }
+		}, 1000);
 	});
 
 	onDestroy(() => {
 		if (typeof window !== 'undefined') {
 			window.removeEventListener('keydown', handleKeydown);
 		}
+		if (statusPollInterval) clearInterval(statusPollInterval);
 	});
 
 	function handleSelectScene(id: string) { activeSceneId = id; selection.clear(); }
@@ -209,7 +227,7 @@
 		objectCount={activeScene?.objects.length ?? 0}
 		config={store.project.config}
 		historyDepth={history.depth}
-		saved={true}
+		{saved}
 	/>
 </div>
 
