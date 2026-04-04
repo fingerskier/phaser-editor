@@ -136,6 +136,13 @@
 		bus.execute(cmdY);
 	}
 
+	function handleResizeObject(id: string, w: number, h: number) {
+		const cmdW = createUpdateObjectCommand(store.getObject.bind(store), id, 'w', w, 'user');
+		bus.execute(cmdW);
+		const cmdH = createUpdateObjectCommand(store.getObject.bind(store), id, 'h', h, 'user');
+		bus.execute(cmdH);
+	}
+
 	function handleUpdateProperty(objectId: string, prop: string, value: unknown) {
 		const cmd = createUpdateObjectCommand(store.getObject.bind(store), objectId, prop, value, 'user');
 		bus.execute(cmd);
@@ -241,6 +248,7 @@
 				canvasRect={{ left: 0, top: 0, width: store.project.config.width, height: store.project.config.height }}
 				onSelect={handleSelectObject}
 				onMove={handleMoveObject}
+				onResize={handleResizeObject}
 			/>
 		{:else if viewMode === 'code' && activeScene}
 			<CodeEditor
