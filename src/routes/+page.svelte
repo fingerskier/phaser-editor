@@ -21,6 +21,7 @@
 	import { createRemoveObjectCommand } from '$lib/commands/remove-object.js';
 	import { createAddObjectCommand } from '$lib/commands/add-object.js';
 	import { createAddSceneCommand } from '$lib/commands/add-scene.js';
+	import { createReorderObjectCommand, type ReorderDirection } from '$lib/commands/reorder-object.js';
 	import type { GameObject, Scene } from '$lib/types.js';
 	import type { Asset } from '$lib/types.js';
 
@@ -110,6 +111,21 @@
 		// Escape — deselect
 		if (e.key === 'Escape') {
 			selection.clear();
+			return;
+		}
+
+		// ] or [ — reorder selected object (Ctrl for front/back)
+		if ((e.key === ']' || e.key === '[') && selection.selectedIds.length === 1) {
+			e.preventDefault();
+			const id = selection.selectedIds[0];
+			const scene = store.getObjectScene(id);
+			if (scene) {
+				let dir: ReorderDirection;
+				if (e.key === ']') dir = mod ? 'front' : 'up';
+				else dir = mod ? 'back' : 'down';
+				const cmd = createReorderObjectCommand(store.getScene.bind(store), scene.id, id, dir, 'user');
+				bus.execute(cmd);
+			}
 			return;
 		}
 	}

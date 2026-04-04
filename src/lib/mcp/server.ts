@@ -186,6 +186,18 @@ export function initEditorMcpServer(deps: ServerDeps): McpServer {
 		return { content: [{ type: 'text', text: cmd ? `Redid: ${cmd.description}` : 'Nothing to redo' }] };
 	});
 
+	server.registerTool('reorder_object', {
+		title: 'Reorder Object',
+		description: 'Change the z-order of an object within its scene (affects render layering)',
+		inputSchema: {
+			objectId: z.string(),
+			direction: z.enum(['up', 'down', 'front', 'back']).describe('up=one step forward, down=one step back, front=topmost, back=bottommost'),
+		},
+	}, async ({ objectId, direction }) => {
+		writeTools.reorder_object(objectId, direction as any);
+		return { content: [{ type: 'text', text: `Moved ${objectId} ${direction}` }] };
+	});
+
 	server.registerTool('list_assets', {
 		title: 'List Assets',
 		description: 'List all assets in the project',

@@ -9,6 +9,7 @@ import { createRemoveSceneCommand } from '$lib/commands/remove-scene.js';
 import { createUpdateConfigCommand } from '$lib/commands/update-config.js';
 import { createAddAssetCommand } from '$lib/commands/add-asset.js';
 import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
+import { createReorderObjectCommand, type ReorderDirection } from '$lib/commands/reorder-object.js';
 
 export interface StoreAccessors {
 	getProject: () => Project;
@@ -81,6 +82,13 @@ export function createWriteToolHandlers(bus: CommandBus, accessors: StoreAccesso
 
 		remove_asset(assetId: string) {
 			const cmd = createRemoveAssetCommand(() => accessors.getProject(), assetId, 'mcp');
+			bus.execute(cmd);
+		},
+
+		reorder_object(objectId: string, direction: ReorderDirection) {
+			const scene = accessors.getObjectScene(objectId);
+			if (!scene) throw new Error(`Object ${objectId} not in any scene`);
+			const cmd = createReorderObjectCommand(accessors.getScene, scene.id, objectId, direction, 'mcp');
 			bus.execute(cmd);
 		},
 
