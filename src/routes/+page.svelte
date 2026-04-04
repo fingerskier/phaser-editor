@@ -35,6 +35,7 @@
 	let saved = $state(true);
 	let lastExternalVersion = 0;
 	let statusPollInterval: ReturnType<typeof setInterval> | null = null;
+	let clipboard = $state<GameObject[]>([]);
 
 	let activeScene = $derived(store.getScene(activeSceneId));
 	let selectedObject = $derived(
@@ -65,6 +66,27 @@
 		// Ctrl+S — prevent default (project auto-saves)
 		if (mod && e.key === 's') {
 			e.preventDefault();
+			return;
+		}
+
+		// Ctrl+C — copy selected objects
+		if (mod && e.key === 'c' && !isInput) {
+			e.preventDefault();
+			copySelected();
+			return;
+		}
+
+		// Ctrl+V — paste
+		if (mod && e.key === 'v' && !isInput) {
+			e.preventDefault();
+			pasteClipboard();
+			return;
+		}
+
+		// Ctrl+D — duplicate
+		if (mod && e.key === 'd' && !isInput) {
+			e.preventDefault();
+			duplicateSelected();
 			return;
 		}
 
@@ -141,6 +163,37 @@
 		bus.execute(cmdW);
 		const cmdH = createUpdateObjectCommand(store.getObject.bind(store), id, 'h', h, 'user');
 		bus.execute(cmdH);
+	}
+
+	function copySelected() {
+		const objects = selection.selectedIds
+			.map(id => store.getObject(id))
+			.filter((o): o is GameObject => o != null);
+		clipboard = objects.map(o => JSON.parse(JSON.stringify(o)));
+	}
+
+	function pasteClipboard() {
+		if (clipboard.length === 0 || !activeSceneId) return;
+		const newIds: string[] = [];
+		for (const obj of clipboard) {
+			const copy: GameObject = {
+				...JSON.parse(JSON.stringify(obj)),
+				id: crypto.randomUUID(),
+				name: `${obj.name}_copy`,
+				x: obj.x + 20,
+				y: obj.y + 20,
+			};
+			const cmd = createAddObjectCommand(store.getScene.bind(store), activeSceneId, copy, 'user');
+			bus.execute(cmd);
+			newIds.push(copy.id);
+		}
+		selection.clear();
+		for (const id of newIds) selection.toggleSelect(id);
+	}
+
+	function duplicateSelected() {
+		copySelected();
+		pasteClipboard();
 	}
 
 	function handleUpdateProperty(objectId: string, prop: string, value: unknown) {
