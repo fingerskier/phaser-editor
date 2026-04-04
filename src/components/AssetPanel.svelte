@@ -15,6 +15,7 @@
 
 	let uploading = $state(false);
 	let dragOver = $state(false);
+	let uploadError = $state<string | null>(null);
 	let editingAssetId = $state<string | null>(null);
 	let editType = $state<'image' | 'spritesheet' | 'audio'>('image');
 	let editFrameW = $state(32);
@@ -24,6 +25,7 @@
 
 	async function uploadFile(file: File) {
 		uploading = true;
+		uploadError = null;
 		try {
 			const key = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_');
 			const type = file.type.startsWith('audio/') ? 'audio' : 'image';
@@ -34,9 +36,15 @@
 			formData.set('type', type);
 
 			const res = await fetch('/api/assets', { method: 'POST', body: formData });
-			if (!res.ok) throw new Error('Upload failed');
+			if (!res.ok) {
+				const body = await res.json().catch(() => ({}));
+				uploadError = body.error || `Upload failed (${res.status})`;
+				return;
+			}
 			const asset: Asset = await res.json();
 			onAssetAdded(asset);
+		} catch (e) {
+			uploadError = e instanceof Error ? e.message : 'Upload failed';
 		} finally {
 			uploading = false;
 		}
@@ -119,6 +127,9 @@
 		role="region"
 		aria-label="Drop files to upload"
 	>
+		{#if uploadError}
+			<div class="upload-error" onclick={() => uploadError = null}>{uploadError}</div>
+		{/if}
 		{#if uploading}
 			<div class="upload-status">Uploading...</div>
 		{:else if assets.length === 0}
@@ -222,6 +233,16 @@
 		background: rgba(96, 165, 250, 0.1);
 		outline: 2px dashed var(--accent-blue);
 		outline-offset: -2px;
+	}
+
+	.upload-error {
+		font-size: 10px;
+		color: #fca5a5;
+		background: rgba(239, 68, 68, 0.15);
+		padding: 4px 8px;
+		margin: 2px 4px;
+		border-radius: 3px;
+		cursor: pointer;
 	}
 
 	.empty-hint, .upload-status {

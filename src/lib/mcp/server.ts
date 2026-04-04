@@ -5,7 +5,7 @@ import type { Project, GameObject, Scene, Module } from '$lib/types.js';
 import { createReadToolHandlers } from './tools/read-tools.js';
 import { createWriteToolHandlers, type StoreAccessors } from './tools/write-tools.js';
 import { generateExportFiles } from '$lib/export/generate-project.js';
-import { serverScreenshot } from '$lib/server/state.js';
+import { serverScreenshot, serverRestart } from '$lib/server/state.js';
 
 export interface ServerDeps {
 	bus: CommandBus;
@@ -228,9 +228,10 @@ export function initEditorMcpServer(deps: ServerDeps): McpServer {
 
 	server.registerTool('restart_preview', {
 		title: 'Restart Preview',
-		description: 'Restart the game preview',
+		description: 'Restart the Phaser canvas preview in the editor (requires browser open)',
 	}, async () => {
-		return { content: [{ type: 'text', text: 'Preview restart requested' }] };
+		serverRestart.request();
+		return { content: [{ type: 'text', text: 'Preview restart signal sent to editor' }] };
 	});
 
 	server.registerTool('get_screenshot', {

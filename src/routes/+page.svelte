@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import type { ViewMode } from '$lib/types.js';
 	import { projectStore } from '$lib/stores/project.svelte.js';
 	import { selectionStore } from '$lib/stores/selection.svelte.js';
@@ -18,6 +18,7 @@
 	import AssetPanel from '../components/AssetPanel.svelte';
 	import { createAddAssetCommand } from '$lib/commands/add-asset.js';
 	import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
+	import { createRemoveObjectCommand } from '$lib/commands/remove-object.js';
 	import type { Asset } from '$lib/types.js';
 
 	const store = projectStore();
@@ -36,11 +37,67 @@
 			: null
 	);
 
+	function handleKeydown(e: KeyboardEvent) {
+		const target = e.target as HTMLElement;
+		const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable;
+		const mod = e.ctrlKey || e.metaKey;
+
+		// Ctrl+Z — undo (works even in inputs)
+		if (mod && !e.shiftKey && e.key === 'z') {
+			e.preventDefault();
+			bus.undo();
+			return;
+		}
+
+		// Ctrl+Shift+Z or Ctrl+Y — redo
+		if ((mod && e.shiftKey && e.key === 'z') || (mod && e.key === 'y')) {
+			e.preventDefault();
+			bus.redo();
+			return;
+		}
+
+		// Ctrl+S — prevent default (project auto-saves)
+		if (mod && e.key === 's') {
+			e.preventDefault();
+			return;
+		}
+
+		// Don't handle remaining shortcuts if focused on an input
+		if (isInput) return;
+
+		// Delete/Backspace — remove selected objects
+		if (e.key === 'Delete' || e.key === 'Backspace') {
+			e.preventDefault();
+			for (const id of [...selection.selectedIds]) {
+				const scene = store.getObjectScene(id);
+				if (scene) {
+					const cmd = createRemoveObjectCommand(store.getScene.bind(store), scene.id, id, 'user');
+					bus.execute(cmd);
+				}
+			}
+			selection.clear();
+			return;
+		}
+
+		// Escape — deselect
+		if (e.key === 'Escape') {
+			selection.clear();
+			return;
+		}
+	}
+
 	onMount(async () => {
+		window.addEventListener('keydown', handleKeydown);
 		const res = await fetch('/api/project');
 		const project = await res.json();
 		store.load(project);
 		if (project.scenes.length > 0) activeSceneId = project.scenes[0].id;
+	});
+
+	onDestroy(() => {
+		if (typeof window !== 'undefined') {
+			window.removeEventListener('keydown', handleKeydown);
+		}
 	});
 
 	function handleSelectScene(id: string) { activeSceneId = id; selection.clear(); }

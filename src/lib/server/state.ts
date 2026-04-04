@@ -154,6 +154,28 @@ export const serverScreenshot = {
 	fulfill: fulfillScreenshot,
 };
 
+// ---------------------------------------------------------------------------
+// Preview restart request
+// ---------------------------------------------------------------------------
+let restartRequested = false;
+
+function requestRestart() {
+	restartRequested = true;
+}
+
+function consumeRestart(): boolean {
+	if (restartRequested) {
+		restartRequested = false;
+		return true;
+	}
+	return false;
+}
+
+export const serverRestart = {
+	request: requestRestart,
+	consume: consumeRestart,
+};
+
 export const serverSelection = {
 	get selectedIds() {
 		return getSelectedIds();
