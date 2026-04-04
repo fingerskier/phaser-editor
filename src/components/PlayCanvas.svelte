@@ -7,7 +7,7 @@
 
 	let container: HTMLDivElement;
 	let game: Phaser.Game | null = null;
-	let error = $state<string | null>(null);
+	let errors = $state<string[]>([]);
 
 	async function transpileCode(code: string): Promise<string> {
 		const res = await fetch('/api/transpile', {
@@ -69,7 +69,8 @@
 			const SceneClass = new Function('Phaser', wrappedJs)(Phaser);
 			return SceneClass;
 		} catch (e) {
-			console.warn(`Failed to transpile scene ${editorScene.name}:`, e);
+			const msg = e instanceof Error ? e.message : String(e);
+			errors.push(`Scene "${editorScene.name}": ${msg}`);
 			return null;
 		}
 	}
@@ -114,7 +115,7 @@ ${creates.join('\n')}
 	}
 
 	async function startGame() {
-		error = null;
+		errors = [];
 		if (game) { game.destroy(true); game = null; }
 
 		try {
@@ -132,7 +133,7 @@ ${creates.join('\n')}
 			}
 
 			if (sceneClasses.length === 0) {
-				error = 'No valid scenes to run';
+				if (errors.length === 0) errors.push('No valid scenes to run');
 				return;
 			}
 
@@ -151,7 +152,7 @@ ${creates.join('\n')}
 				input: { keyboard: true, mouse: true, touch: true },
 			});
 		} catch (e) {
-			error = `Failed to start game: ${e instanceof Error ? e.message : String(e)}`;
+			errors.push(`Failed to start game: ${e instanceof Error ? e.message : String(e)}`);
 		}
 	}
 
@@ -160,36 +161,49 @@ ${creates.join('\n')}
 </script>
 
 <div style="position:relative;flex:1;display:flex;align-items:center;justify-content:center;background:#000;">
-	{#if error}
-		<div class="play-error">
-			<div class="error-icon">!</div>
-			<div>{error}</div>
+	{#if errors.length > 0}
+		<div class="play-errors" onclick={() => errors = []}>
+			{#each errors as err}
+				<div class="play-error">
+					<div class="error-icon">!</div>
+					<div>{err}</div>
+				</div>
+			{/each}
 		</div>
 	{/if}
 	<div bind:this={container} style="position:relative;"></div>
 </div>
 
 <style>
-	.play-error {
+	.play-errors {
 		position: absolute;
-		top: 16px;
+		top: 8px;
 		left: 50%;
 		transform: translateX(-50%);
+		z-index: 10;
+		max-width: 90%;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		cursor: pointer;
+	}
+
+	.play-error {
 		background: rgba(239, 68, 68, 0.9);
 		color: white;
-		padding: 8px 16px;
+		padding: 6px 12px;
 		border-radius: 6px;
-		font-size: 12px;
-		z-index: 10;
+		font-size: 11px;
 		display: flex;
-		align-items: center;
-		gap: 8px;
-		max-width: 80%;
+		align-items: flex-start;
+		gap: 6px;
+		font-family: var(--font-mono);
+		word-break: break-word;
 	}
 
 	.error-icon {
-		width: 20px;
-		height: 20px;
+		width: 16px;
+		height: 16px;
 		border-radius: 50%;
 		background: white;
 		color: #ef4444;
@@ -197,7 +211,7 @@ ${creates.join('\n')}
 		align-items: center;
 		justify-content: center;
 		font-weight: bold;
-		font-size: 14px;
+		font-size: 11px;
 		flex-shrink: 0;
 	}
 </style>
