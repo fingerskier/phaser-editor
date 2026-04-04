@@ -1,14 +1,20 @@
 <script lang="ts">
-	import type { GameObject } from '$lib/types.js';
+	import type { GameObject, Asset } from '$lib/types.js';
 	import { OBJ_TYPES } from '$lib/constants.js';
 
 	let {
 		selectedObject = null,
+		assets = [] as Asset[],
 		onUpdateProperty,
 	}: {
 		selectedObject: GameObject | null;
+		assets: Asset[];
 		onUpdateProperty: (objectId: string, prop: string, value: string | number | boolean) => void;
 	} = $props();
+
+	let hasAssetKey = $derived(
+		selectedObject != null && ['sprite', 'image'].includes(selectedObject.objType)
+	);
 
 	function update(prop: string, value: string | number | boolean) {
 		if (selectedObject) {
@@ -101,11 +107,38 @@
 			</div>
 		</section>
 
+		<!-- Asset Key -->
+		{#if hasAssetKey}
+			<section class="prop-section">
+				<div class="section-label">Asset</div>
+				<div class="prop-row">
+					<label>Key</label>
+					<select
+						value={selectedObject.props.assetKey ?? ''}
+						onchange={(e) => update('props.assetKey', (e.target as HTMLSelectElement).value)}
+					>
+						<option value="">(none)</option>
+						{#each assets.filter(a => a.type !== 'audio') as asset (asset.id)}
+							<option value={asset.key}>{asset.key}</option>
+						{/each}
+					</select>
+				</div>
+				{#if selectedObject.props.assetKey}
+					<div class="asset-preview">
+						<img
+							src="/api/assets/{assets.find(a => a.key === selectedObject?.props.assetKey)?.filename ?? ''}"
+							alt={String(selectedObject.props.assetKey)}
+						/>
+					</div>
+				{/if}
+			</section>
+		{/if}
+
 		<!-- Custom Props -->
-		{#if Object.keys(selectedObject.props).length > 0}
+		{#if Object.keys(selectedObject.props).filter(k => k !== 'assetKey' || !hasAssetKey).length > 0}
 			<section class="prop-section">
 				<div class="section-label">Custom Properties</div>
-				{#each Object.entries(selectedObject.props) as [key, value] (key)}
+				{#each Object.entries(selectedObject.props).filter(([k]) => k !== 'assetKey' || !hasAssetKey) as [key, value] (key)}
 					<div class="prop-row">
 						<label>{key}</label>
 						{#if typeof value === 'boolean'}
@@ -185,6 +218,21 @@
 	.prop-readonly {
 		font-size: 11px;
 		color: var(--text-muted);
+	}
+
+	.asset-preview {
+		padding: 4px 8px;
+		display: flex;
+		justify-content: center;
+	}
+
+	.asset-preview img {
+		max-width: 100%;
+		max-height: 80px;
+		object-fit: contain;
+		border-radius: 3px;
+		background: var(--bg-primary);
+		image-rendering: pixelated;
 	}
 
 	.no-selection {

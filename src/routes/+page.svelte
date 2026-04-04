@@ -131,7 +131,7 @@
 		{/if}
 	</div>
 
-	<PropertiesPanel {selectedObject} onUpdateProperty={handleUpdateProperty} />
+	<PropertiesPanel {selectedObject} assets={store.project.assets} onUpdateProperty={handleUpdateProperty} />
 
 	<StatusBar
 		sceneName={activeScene?.name ?? ''}
