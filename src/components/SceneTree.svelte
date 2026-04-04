@@ -8,12 +8,16 @@
 		selectedObjectIds = [],
 		onSelectScene,
 		onSelectObject,
+		onAddScene,
+		onAddObject,
 	}: {
 		project: Project;
 		activeSceneId: string;
 		selectedObjectIds: string[];
 		onSelectScene: (sceneId: string) => void;
 		onSelectObject: (objectId: string) => void;
+		onAddScene: () => void;
+		onAddObject: (sceneId: string, objType: string) => void;
 	} = $props();
 
 	let expandedScenes = $state<Record<string, boolean>>({});
@@ -38,7 +42,10 @@
 </script>
 
 <div class="panel scene-tree">
-	<div class="panel-header">Scenes & Objects</div>
+	<div class="panel-header">
+		Scenes & Objects
+		<button class="add-btn" title="Add new scene" onclick={onAddScene}>+</button>
+	</div>
 
 	{#each project.scenes as scene (scene.id)}
 		<div>
@@ -85,6 +92,13 @@
 						{/if}
 					</div>
 				{/each}
+				<div class="add-object-row">
+					<button class="add-obj-btn" title="Rectangle" onclick={() => onAddObject(scene.id, 'rectangle')}>▬</button>
+					<button class="add-obj-btn" title="Circle" onclick={() => onAddObject(scene.id, 'circle')}>●</button>
+					<button class="add-obj-btn" title="Sprite" onclick={() => onAddObject(scene.id, 'sprite')}>◆</button>
+					<button class="add-obj-btn" title="Text" onclick={() => onAddObject(scene.id, 'text')}>T</button>
+					<button class="add-obj-btn" title="Zone" onclick={() => onAddObject(scene.id, 'zone')}>⬚</button>
+				</div>
 			{/if}
 		</div>
 	{/each}
@@ -101,6 +115,50 @@
 </div>
 
 <style>
+	.panel-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.add-btn {
+		font-size: 12px;
+		padding: 0 5px;
+		line-height: 16px;
+		background: var(--bg-tertiary);
+		border: 1px solid var(--border);
+		border-radius: 3px;
+		color: var(--text-primary);
+		cursor: pointer;
+	}
+
+	.add-btn:hover {
+		background: #2a2a3a;
+	}
+
+	.add-object-row {
+		display: flex;
+		gap: 2px;
+		padding: 3px 8px 3px 28px;
+	}
+
+	.add-obj-btn {
+		font-size: 10px;
+		padding: 2px 6px;
+		line-height: 14px;
+		background: var(--bg-primary);
+		border: 1px dashed var(--border);
+		border-radius: 3px;
+		color: var(--text-muted);
+		cursor: pointer;
+	}
+
+	.add-obj-btn:hover {
+		background: var(--bg-tertiary);
+		color: var(--text-primary);
+		border-style: solid;
+	}
+
 	.scene-row {
 		display: flex;
 		align-items: center;

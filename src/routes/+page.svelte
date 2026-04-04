@@ -19,6 +19,9 @@
 	import { createAddAssetCommand } from '$lib/commands/add-asset.js';
 	import { createRemoveAssetCommand } from '$lib/commands/remove-asset.js';
 	import { createRemoveObjectCommand } from '$lib/commands/remove-object.js';
+	import { createAddObjectCommand } from '$lib/commands/add-object.js';
+	import { createAddSceneCommand } from '$lib/commands/add-scene.js';
+	import type { GameObject, Scene } from '$lib/types.js';
 	import type { Asset } from '$lib/types.js';
 
 	const store = projectStore();
@@ -138,6 +141,45 @@
 		bus.execute(cmd);
 	}
 
+	let sceneCounter = $state(0);
+	let objectCounter = $state(0);
+
+	function handleAddScene() {
+		sceneCounter++;
+		const name = `Scene${store.project.scenes.length + sceneCounter}`;
+		const scene: Scene = {
+			id: crypto.randomUUID(),
+			name,
+			description: '',
+			objects: [],
+			code: `class ${name} extends Phaser.Scene {\n\tconstructor() { super({ key: '${name}' }); }\n\tcreate() {}\n\tupdate() {}\n}`,
+		};
+		const cmd = createAddSceneCommand(() => store.project, scene, 'user');
+		bus.execute(cmd);
+		activeSceneId = scene.id;
+	}
+
+	function handleAddObject(sceneId: string, objType: string) {
+		objectCounter++;
+		const config = store.project.config;
+		const obj: GameObject = {
+			id: crypto.randomUUID(),
+			name: `${objType}${objectCounter}`,
+			objType,
+			x: Math.round(config.width / 2),
+			y: Math.round(config.height / 2),
+			w: objType === 'circle' ? 50 : 100,
+			h: objType === 'circle' ? 50 : objType === 'text' ? 30 : 100,
+			color: '#4a7dff',
+			visible: true,
+			locked: false,
+			props: objType === 'text' ? { text: 'Text', fontSize: '16px' } : {},
+		};
+		const cmd = createAddObjectCommand(store.getScene.bind(store), sceneId, obj, 'user');
+		bus.execute(cmd);
+		selection.select(obj.id);
+	}
+
 	function handleAssetAdded(asset: Asset) {
 		const cmd = createAddAssetCommand(() => store.project, asset, 'user');
 		bus.execute(cmd);
@@ -180,6 +222,8 @@
 			selectedObjectIds={selection.selectedIds}
 			onSelectScene={handleSelectScene}
 			onSelectObject={(id) => handleSelectObject(id)}
+			onAddScene={handleAddScene}
+			onAddObject={handleAddObject}
 		/>
 		<AssetPanel
 			assets={store.project.assets}
